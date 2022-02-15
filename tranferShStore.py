@@ -36,7 +36,7 @@ def printData():
         print(f'Id: {list(row[1])[0]} - Name: {list(row[1])[1]} | Link: {list(row[1])[2]} | Delete Link: {list(row[1])[3]} | Created Time: {readableTime(list(row[1])[4])} | Expired Time: {readableTime(list(row[1])[4] + 1209600)} | Expired: {isOutOfDate(list(row[1])[4])}')
     print()
 
-def ExecuteDelete(id):
+def executeDelete(id):
     c.execute("DELETE from transferData WHERE id = ?", id)
 
     conn.commit()
@@ -46,7 +46,7 @@ def ExecuteDelete(id):
 def deleteData():
     printData()
     id = input('Type the id of the entry you want to delete: ')
-    ExecuteDelete(id)
+    executeDelete(id)
 
 def insertData():
     name = input('Type the name of the entry: ')
