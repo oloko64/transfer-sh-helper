@@ -22,7 +22,6 @@ if (not exists('transferSh.db')):
 conn = sqlite3.connect('transferSh.db')
 c = conn.cursor()
 
-    
 # One week in unix time equals 1209600
 unixWeek = 1209600
 
