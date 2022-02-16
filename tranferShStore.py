@@ -1,18 +1,47 @@
 import time
 import sqlite3
 from datetime import datetime
-import sys
+import sys, os
+from os.path import exists
+
+# Create the database if there is not one already created
+if (not exists('transferSh.db')):
+    fc = open('transferSh.db', 'x')
+    fc.close()
+    conn = sqlite3.connect('transferSh.db')
+    conn.execute('''CREATE TABLE "transferData" (
+                    "id"	INTEGER,
+                    "name"	TEXT,
+                    "link"	TEXT,
+                    "deleteLink"	TEXT,
+                    "unixTime"	INTEGER,
+                    PRIMARY KEY("id" AUTOINCREMENT));''')
+    conn.close()
 
 # Initiate sqlite3 database
-conn = sqlite3.connect('database/transferSh.db')
+conn = sqlite3.connect('transferSh.db')
 c = conn.cursor()
 
+    
 # One week in unix time equals 1209600
 unixWeek = 1209600
 
 # Gets the current unix time
 def currentTime():
     return int(time.time())
+
+# Asks for user confirmation
+def askConfirmation(text):
+    question = input(f'Are you sure you want to {text}? (y/N) ')
+    if (question == 'y' or question == 'Y' or question == 'yes'):
+        return True
+    else:
+        return False
+
+# Drop the entire database
+def deleteDatabase():
+    if (askConfirmation('DELETE THE DATABASE FILE')):
+        os.remove('transferSh.db')
 
 # Convert unix time into readable time
 def readableTime(time):
@@ -40,7 +69,8 @@ def dataEntry(data):
 # Prints the data to the console
 def printData():
     print()
-    for row in readData():
+    for row in enumerate(readData()):
+        value = list(row[1])
         print(f'Id: {list(row[1])[0]} - Name: {list(row[1])[1]} | Link: {list(row[1])[2]} | Delete Link: {list(row[1])[3]} | Created Time: {readableTime(list(row[1])[4])} | Expired Time: {readableTime(list(row[1])[4] + unixWeek)} | Expired: {isOutOfDate(list(row[1])[4])}')
     print()
 
@@ -80,6 +110,7 @@ def printHelp():
     print(' -r | empty                 => Read data from database')
     print(' -i | --insert              => Insert data into database')
     print(' -d | --delete              => Delete data from database')
+    print(' -DD | --drop                => Delete the entire database')
     print()
 
 # Manage all the arguments provided
@@ -92,6 +123,8 @@ def argParser(args):
                 insertData()
             elif (arg == '-d' or arg == '--delete'):
                 deleteData()
+            elif (arg == '-DD' or arg == '--drop'):
+                deleteDatabase()
             elif (arg == '-h' or arg == '--help'):
                 print('\nThis app lets you manage your transfer.sh links, by adding the links when you created them you can know if they are already expired\n')
                 printHelp()
