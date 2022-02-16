@@ -68,9 +68,8 @@ def dataEntry(data):
 # Prints the data to the console
 def printData():
     print()
-    for row in enumerate(readData()):
-        value = list(row[1])
-        print(f'Id: {list(row[1])[0]} - Name: {list(row[1])[1]} | Link: {list(row[1])[2]} | Delete Link: {list(row[1])[3]} | Created Time: {readableTime(list(row[1])[4])} | Expired Time: {readableTime(list(row[1])[4] + unixWeek)} | Expired: {isOutOfDate(list(row[1])[4])}')
+    for row in readData():
+        print(f'Id: {row[0]} - Name: {row[1]} | Link: {row[2]} | Delete Link: {row[3]} | Created Time: {readableTime(row[4])} | Expired Time: {readableTime(row[4] + unixWeek)} | Expired: {isOutOfDate(row[4])}')
     print()
 
 # Delete data from the table based on the id provided
