@@ -1,14 +1,18 @@
-import time
-import sqlite3
+from time import time
+from sqlite3 import connect
 from datetime import datetime
-import sys, os
+from sys import argv
+from os import remove
 from os.path import exists
+
+# Code developed by OLoKo64
+# Thanks for using it :)
 
 # Create the database if there is not one already created
 if (not exists('transferSh.db')):
     fc = open('transferSh.db', 'x')
     fc.close()
-    conn = sqlite3.connect('transferSh.db')
+    conn = connect('transferSh.db')
     conn.execute('''CREATE TABLE "transferData" (
                     "id"	INTEGER,
                     "name"	TEXT,
@@ -19,7 +23,7 @@ if (not exists('transferSh.db')):
     conn.close()
 
 # Initiate sqlite3 database
-conn = sqlite3.connect('transferSh.db')
+conn = connect('transferSh.db')
 c = conn.cursor()
 
 # One week in unix time equals 1209600
@@ -27,7 +31,7 @@ unixWeek = 1209600
 
 # Gets the current unix time
 def currentTime():
-    return int(time.time())
+    return int(time())
 
 # Asks for user confirmation
 def askConfirmation(text):
@@ -40,7 +44,7 @@ def askConfirmation(text):
 # Drop the entire database
 def deleteDatabase():
     if (askConfirmation('DELETE THE DATABASE FILE')):
-        os.remove('transferSh.db')
+        remove('transferSh.db')
 
 # Convert unix time into readable time
 def readableTime(time):
@@ -134,4 +138,4 @@ def argParser(args):
 
 # Main code execution
 if __name__ == "__main__":
-    argParser(sys.argv[1:])
+    argParser(argv[1:])
