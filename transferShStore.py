@@ -2,17 +2,24 @@ from time import time
 from sqlite3 import connect
 from datetime import datetime
 from sys import argv
-from os import remove
+from os import remove, path, makedirs
 from os.path import exists
 
 # Code developed by OLoKo64
 # Thanks for using it :)
 
+# Path to database
+folderPath = path.dirname(path.abspath(__file__)) + '/database'
+
+databaseFile = 'transferSh.db'
+
 # Create the database if there is not one already created
-if (not exists('transferSh.db')):
-    fc = open('transferSh.db', 'x')
+if (not exists(path.join(folderPath, databaseFile))):
+    if not path.exists(folderPath):
+        makedirs(folderPath)
+    fc = open(path.join(folderPath, databaseFile), 'x')
     fc.close()
-    conn = connect('transferSh.db')
+    conn = connect(path.join(folderPath, databaseFile))
     conn.execute('''CREATE TABLE "transferData" (
                     "id"	INTEGER,
                     "name"	TEXT,
@@ -23,7 +30,7 @@ if (not exists('transferSh.db')):
     conn.close()
 
 # Initiate sqlite3 database
-conn = connect('transferSh.db')
+conn = connect(path.join(folderPath, databaseFile))
 c = conn.cursor()
 
 # One week in unix time equals 1209600
@@ -44,7 +51,7 @@ def askConfirmation(text):
 # Drop the entire database
 def deleteDatabase():
     if (askConfirmation('DELETE THE DATABASE FILE')):
-        remove('transferSh.db')
+        remove(path.join(folderPath, databaseFile))
 
 # Convert unix time into readable time
 def readableTime(time):
