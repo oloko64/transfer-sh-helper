@@ -23,7 +23,7 @@ chmod +x transfershstore
 You can also place the executable in your `/home/$USER/.local/bin` folder, after that just execute `transfershstore` in your terminal (This folder needs to be on PATH).
 
 
-## Add `.local.bin` to path
+## Add `.local/bin` to path
 
 Just add this code to your `.bashrc` or `.bash_profile`
 
