@@ -1,16 +1,20 @@
+#!/usr/bin/env python
+
 from time import time
 from sqlite3 import connect
 from datetime import datetime
 from sys import argv
 from os import remove, path, makedirs
 from os.path import exists
+from getpass import getuser
 
 # Code developed by OLoKo64
 # Thanks for using it :)
 
 # Path to database
-folderPath = path.dirname(path.abspath(__file__)) + '/database'
+folderPath = '/home/' + getuser() + '/.config/transferShDatabase'
 
+# Name of the database file
 databaseFile = 'transferSh.db'
 
 # Create the database if there is not one already created
@@ -36,9 +40,11 @@ c = conn.cursor()
 # One week in unix time equals 1209600
 unixWeek = 1209600
 
+
 # Gets the current unix time
 def currentTime():
     return int(time())
+
 
 # Asks for user confirmation
 def askConfirmation(text):
@@ -48,18 +54,22 @@ def askConfirmation(text):
     else:
         return False
 
+
 # Drop the entire database
 def deleteDatabase():
     if (askConfirmation('DELETE THE DATABASE FILE')):
         remove(path.join(folderPath, databaseFile))
 
+
 # Convert unix time into readable time
 def readableTime(time):
     return datetime.utcfromtimestamp(time).strftime('%d-%m-%Y')
 
+
 # Check if the provided unix time is a week or more older
 def isOutOfDate(previousDate):
     return (currentTime() - previousDate) > unixWeek
+
 
 # Get all the data from the database
 def readData():
@@ -68,13 +78,14 @@ def readData():
     data = c.fetchall()
     return data
 
+
 # Insert provided data into database
 def dataEntry(data):
-    c.execute(f"INSERT INTO transferData(name, link, deleteLink, unixTime) VALUES(?, ?, ?, ?)", (data['name'], data['link'], data['deleteLink'], data['unixTime']))
-    
+    c.execute(f"INSERT INTO transferData(name, link, deleteLink, unixTime) VALUES(?, ?, ?, ?)",
+              (data['name'], data['link'], data['deleteLink'], data['unixTime']))
+
     conn.commit()
-    c.close()
-    conn.close()
+
 
 # Prints the data to the console
 def printData():
@@ -83,19 +94,19 @@ def printData():
         print(f'Id: {row[0]} - Name: {row[1]} | Link: {row[2]} | Delete Link: {row[3]} | Created Time: {readableTime(row[4])} | Expired Time: {readableTime(row[4] + unixWeek)} | Expired: {isOutOfDate(row[4])}')
     print()
 
+
 # Delete data from the table based on the id provided
 def executeDelete(id):
     c.execute("DELETE from transferData WHERE id = ?", id)
-
     conn.commit()
-    c.close()
-    conn.close()
+
 
 # Asks the user what is the id to execute the deletion from the database
 def deleteData():
     printData()
     id = input('Type the id of the entry you want to delete: ')
     executeDelete(id)
+
 
 # Asks the user for the information to be added to the database
 def insertData():
@@ -111,16 +122,19 @@ def insertData():
     }
 
     dataEntry(localData)
+    printData()
+
 
 # Prints all the help commands
 def printHelp():
     print('List of commands:')
-    print(' -h | --help                => Help on how to use it')
-    print(' -r | empty                 => Read data from database')
-    print(' -i | --insert              => Insert data into database')
-    print(' -d | --delete              => Delete data from database')
-    print(' -DD | --drop                => Delete the entire database')
+    print(' -h | --help                => Help on how to use it.')
+    print(' -r | empty                 => Read data from database.')
+    print(' -i | --insert              => Insert data into database.')
+    print(' -d | --delete              => Delete data from database.')
+    print(' -DD | --drop               => Delete the entire database.')
     print()
+
 
 # Manage all the arguments provided
 def argParser(args):
@@ -135,7 +149,7 @@ def argParser(args):
             elif (arg == '-DD' or arg == '--drop'):
                 deleteDatabase()
             elif (arg == '-h' or arg == '--help'):
-                print('\nThis app lets you manage your transfer.sh links, by adding the links when you created them you can know if they are already expired\n')
+                print('\nThis app lets you manage your transfer.sh links, by adding the links when you created them you can know if they are already expired.\n')
                 printHelp()
             else:
                 printHelp()
@@ -145,4 +159,11 @@ def argParser(args):
 
 # Main code execution
 if __name__ == "__main__":
-    argParser(argv[1:])
+    try:
+        argParser(argv[1:])
+    except KeyboardInterrupt:
+        print('\n\nExiting...\n')
+        exit()
+    finally:
+        c.close()
+        conn.close()
