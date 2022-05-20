@@ -5,7 +5,7 @@ from sqlite3 import connect
 from datetime import datetime
 from sys import argv
 from os import remove, path, makedirs
-from os.path import exists
+from os.path import exists, join
 from getpass import getuser
 from subprocess import run
 
@@ -19,12 +19,12 @@ folderPath = '/home/' + getuser() + '/.config/transfer-sh-database'
 databaseFile = 'transfer-sh.db'
 
 # Create the database if there is not one already created
-if (not exists(path.join(folderPath, databaseFile))):
-    if not path.exists(folderPath):
+if (not exists(join(folderPath, databaseFile))):
+    if not exists(folderPath):
         makedirs(folderPath)
-    fc = open(path.join(folderPath, databaseFile), 'x')
+    fc = open(join(folderPath, databaseFile), 'x')
     fc.close()
-    conn = connect(path.join(folderPath, databaseFile))
+    conn = connect(join(folderPath, databaseFile))
     conn.execute('''CREATE TABLE "transfer_data" (
                     "id"	INTEGER,
                     "name"	TEXT,
@@ -35,7 +35,7 @@ if (not exists(path.join(folderPath, databaseFile))):
     conn.close()
 
 # Initiate sqlite3 database
-conn = connect(path.join(folderPath, databaseFile))
+conn = connect(join(folderPath, databaseFile))
 c = conn.cursor()
 
 # One week in unix time equals 1209600
@@ -118,11 +118,28 @@ def get_delete_link(link):
             return line.split(' ')[2].replace('\r', '')
 
 
+# Split the path to get the filename and the path
+def treat_path(file_path):
+    combined_path = file_path.split('/')
+    filename = combined_path[-1]
+    file_path = file_path.replace(filename, '')
+    return file_path, filename
+
+
+# Check if the file exists
+def check_file_exists(file_path):
+    if (not exists(file_path)):
+        print(f'The file {file_path} does not exist')
+        exit(1)
+
+
 # Sends the file to transfer.sh and add it to the database
-def send_file(filename):
-    title = input('Add a simple title for the file: ') or 'No title'
+def send_file(path_file):
+    check_file_exists(path_file)
+    _, filename = treat_path(path_file)
+    title = input('Add a title for this file: ') or 'No Title'
     print('Uploading file...')
-    output = run(f'curl -v --upload-file {filename} https://transfer.sh/{filename}', shell=True, capture_output=True)
+    output = run(f'curl -v --upload-file {path_file} https://transfer.sh/{filename}', shell=True, capture_output=True)
 
     local_data = {
         "name": title,
@@ -172,7 +189,7 @@ if __name__ == "__main__":
         arg_parser(argv[1:])
     except KeyboardInterrupt:
         print('\n\nExiting...\n')
-        exit()
+        exit(1)
     finally:
         c.close()
         conn.close()
