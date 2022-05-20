@@ -13,10 +13,10 @@ from subprocess import run
 # Thanks for using it :)
 
 # Path to database
-folderPath = '/home/' + getuser() + '/.config/transfer-sh-database'
+folderPath = '/home/' + getuser() + '/.config/transfer-sh-helper-database'
 
 # Name of the database file
-databaseFile = 'transfer-sh.db'
+databaseFile = 'transfer-sh-helper.db'
 
 # Create the database if there is not one already created
 if (not exists(join(folderPath, databaseFile))):

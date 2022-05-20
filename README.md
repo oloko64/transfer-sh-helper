@@ -15,16 +15,16 @@ https://user-images.githubusercontent.com/49915167/169554024-cac40f4c-4ec1-49f3-
 This is the easiest part, just go to the releases and download the [latest version](https://github.com/OLoKo64/transfer-sh-store/releases), after that you just need to execute the program inside a terminal:
 
 ```bash
-./trasfershstore
+./trasferhelper
 ```
 
 If you get a error from not having executable permission just execute:
 
 ```bash
-chmod +x transfershstore
+chmod +x transferhelper
 ```
 
-You can also place the executable in your `/home/$USER/.local/bin` folder, after that just execute `transfershstore` in your terminal (This folder needs to be on PATH).
+You can also place the executable in your `/home/$USER/.local/bin` folder, after that just execute `transferhelper` in your terminal (This folder needs to be on PATH).
 
 
 ## Usage
@@ -34,19 +34,19 @@ This script has a few commands, you can use them in your terminal:
 ### Upload a file:
 
 ```bash
-transfershstore -u <file>
+transferhelper -u <file>
 ```
 
 ### View your stored links:
 
 ```bash
-transfershstore
+transferhelper
 ```
 
 ### Delete a link:
 
 ```bash
-transfershstore -d
+transferhelper -d
 ```
 
 After running this command it will ask you for the link you want to delete.
@@ -54,7 +54,7 @@ After running this command it will ask you for the link you want to delete.
 ### Delete the database:
 
 ```bash
-transfershstore -DD
+transferhelper -DD
 ```
 
 After running this command it will ask for confirmation.
@@ -62,7 +62,7 @@ After running this command it will ask for confirmation.
 ### View help:
 
 ```bash
-transfershstore -h
+transferhelper -h
 ```
 
 ---
