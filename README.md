@@ -1,6 +1,10 @@
-# Transfer.sh store
+# Transfer.sh helper
 
 The idea of the script is to store your transfer.sh links, so you can remember them later and know when they will expire.
+
+
+https://user-images.githubusercontent.com/49915167/169554024-cac40f4c-4ec1-49f3-a9fc-aa8e622c5284.mp4
+
 
 ## THIS SCRIPT IS NOT OFFICIAL.
 ### Check out [Transfer.sh](https://github.com/dutchcoders/transfer.sh) on Github and give them a star.
