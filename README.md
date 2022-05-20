@@ -23,6 +23,46 @@ chmod +x transfershstore
 You can also place the executable in your `/home/$USER/.local/bin` folder, after that just execute `transfershstore` in your terminal (This folder needs to be on PATH).
 
 
+## Usage
+
+This script has a few commands, you can use them in your terminal:
+
+### Upload a file:
+
+```bash
+transfershstore -u <file>
+```
+
+### View your stored links:
+
+```bash
+transfershstore
+```
+
+### Delete a link:
+
+```bash
+transfershstore -d
+```
+
+After running this command it will ask you for the link you want to delete.
+
+### Delete the database:
+
+```bash
+transfershstore -DD
+```
+
+After running this command it will ask for confirmation.
+
+### View help:
+
+```bash
+transfershstore -h
+```
+
+---
+
 ## Add `.local/bin` to path
 
 Just add this code to your `.bashrc` or `.bash_profile`
