@@ -202,7 +202,7 @@ def arg_parser(args: list) -> None:
         elif args[0] == '-DD' or args[0] == '--drop':
             delete_database()
         elif args[0] == '-V' or args[0] == '--version':
-            print('Version -> 0.3.6')
+            print('Version -> 0.3.7')
         elif args[0] == '-h' or args[0] == '--help':
             print(
                 '\nThis app lets you manage your transfer.sh links, by adding the links when you created them you can '
