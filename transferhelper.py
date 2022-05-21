@@ -10,37 +10,9 @@ from getpass import getuser
 from subprocess import run
 from multiprocessing import Pool
 
+
 # Code developed by OLoKo64
 # Thanks for using it :)
-
-# Path to database
-folderPath = '/home/' + getuser() + '/.config/transfer-sh-helper-database'
-
-# Name of the database file
-databaseFile = 'transfer-sh-helper.db'
-
-# Create the database if there is not one already created
-if not exists(join(folderPath, databaseFile)):
-    if not exists(folderPath):
-        makedirs(folderPath)
-    fc = open(join(folderPath, databaseFile), 'x')
-    fc.close()
-    conn = connect(join(folderPath, databaseFile))
-    conn.execute('''CREATE TABLE "transfer_data" (
-                    "id"	INTEGER,
-                    "name"	TEXT,
-                    "link"	TEXT,
-                    "deleteLink"	TEXT,
-                    "unixTime"	INTEGER,
-                    PRIMARY KEY("id" AUTOINCREMENT));''')
-    conn.close()
-
-# Initiate sqlite3 database
-conn = connect(join(folderPath, databaseFile))
-c = conn.cursor()
-
-# One week in unix time equals 1209600
-unixWeek = 1209600
 
 
 # Gets the current unix time
@@ -70,7 +42,7 @@ def readable_time(local_time: int) -> str:
 
 # Check if the provided unix time is a week or older
 def is_out_of_date(previous_date: int) -> bool:
-    return (current_time() - previous_date) > unixWeek
+    return (current_time() - previous_date) > 1209600
 
 
 # Get all the data from the database
@@ -105,7 +77,7 @@ def print_data() -> None:
             f'Id: {row[0]} -> {row[1]} '
             f'| Link: {row[2]} | Delete Link: {row[3]} '
             f'| Created At: {readable_time(row[4])} '
-            f'| Expiration Date: {readable_time(row[4] + unixWeek)} '
+            f'| Expiration Date: {readable_time(row[4] + 1209600)} '
             f'| Expired: {is_out_of_date(row[4])}')
     print()
 
@@ -191,6 +163,24 @@ def send_file(path_file: list) -> None:
     print_data()
 
 
+# Create the database if there is not one already created
+def check_database() -> None:
+    if not exists(join(folderPath, databaseFile)):
+        if not exists(folderPath):
+            makedirs(folderPath)
+        fc = open(join(folderPath, databaseFile), 'x')
+        fc.close()
+        conn = connect(join(folderPath, databaseFile))
+        conn.execute('''CREATE TABLE "transfer_data" (
+                            "id"	INTEGER,
+                            "name"	TEXT,
+                            "link"	TEXT,
+                            "deleteLink"	TEXT,
+                            "unixTime"	INTEGER,
+                            PRIMARY KEY("id" AUTOINCREMENT));''')
+        conn.close()
+
+
 # Prints all the help commands
 def print_help() -> None:
     print('List of commands:')
@@ -225,8 +215,23 @@ def arg_parser(args: list) -> None:
         print_data()
 
 
-# Main code execution
 if __name__ == "__main__":
+
+    # Path to database
+    folderPath = '/home/' + getuser() + '/.config/transfer-sh-helper-database'
+
+    # Name of the database file
+    databaseFile = 'transfer-sh-helper.db'
+
+    # Check if the database exists
+    check_database()
+
+    # Initiate sqlite3 database
+    conn = connect(join(folderPath, databaseFile))
+    c = conn.cursor()
+
+    # One week in unix time equals 1209600
+
     try:
         arg_parser(argv[1:])
     except KeyboardInterrupt:
