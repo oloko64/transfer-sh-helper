@@ -102,7 +102,11 @@ def print_data() -> None:
     print()
     for row in read_data():
         print(
-            f'Id: {row[0]} -> {row[1]} | Link: {row[2]} | Delete Link: {row[3]} | Created Time: {readable_time(row[4])} | Expired Time: {readable_time(row[4] + unixWeek)} | Expired: {is_out_of_date(row[4])}')
+            f'Id: {row[0]} -> {row[1]} '
+            f'| Link: {row[2]} | Delete Link: {row[3]} '
+            f'| Created At: {readable_time(row[4])} '
+            f'| Expiration Date: {readable_time(row[4] + unixWeek)} '
+            f'| Expired: {is_out_of_date(row[4])}')
     print()
 
 
