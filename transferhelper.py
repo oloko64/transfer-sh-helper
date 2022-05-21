@@ -168,8 +168,6 @@ def check_database() -> None:
     if not exists(join(folderPath, databaseFile)):
         if not exists(folderPath):
             makedirs(folderPath)
-        fc = open(join(folderPath, databaseFile), 'x')
-        fc.close()
         conn = connect(join(folderPath, databaseFile))
         conn.execute('''CREATE TABLE "transfer_data" (
                             "id"	INTEGER,
@@ -178,7 +176,6 @@ def check_database() -> None:
                             "deleteLink"	TEXT,
                             "unixTime"	INTEGER,
                             PRIMARY KEY("id" AUTOINCREMENT));''')
-        conn.close()
 
 
 # Prints all the help commands
