@@ -176,6 +176,7 @@ def check_database() -> None:
                             "deleteLink"	TEXT,
                             "unixTime"	INTEGER,
                             PRIMARY KEY("id" AUTOINCREMENT));''')
+        conn.commit()
 
 
 # Prints all the help commands
