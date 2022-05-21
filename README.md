@@ -10,7 +10,7 @@ The idea of the script is to store your transfer.sh links and simplify its usage
 - Upload multiple files at once (Multithreading support).
 - Option to easily delete the file from their servers.
 
-https://user-images.githubusercontent.com/49915167/169567092-7f3dae6e-8358-4a0c-b1f4-64c8914366c7.mp4
+https://user-images.githubusercontent.com/49915167/169654192-993f0010-02db-4eba-812e-243f3e5a2fe2.mp4
 
 ## THIS SCRIPT IS NOT OFFICIAL.
 
