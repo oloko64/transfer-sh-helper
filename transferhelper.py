@@ -8,6 +8,7 @@ from os import remove, path, makedirs
 from os.path import exists, join
 from getpass import getuser
 from subprocess import run
+from multiprocessing import Pool
 
 # Code developed by OLoKo64
 # Thanks for using it :)
@@ -19,7 +20,7 @@ folderPath = '/home/' + getuser() + '/.config/transfer-sh-helper-database'
 databaseFile = 'transfer-sh-helper.db'
 
 # Create the database if there is not one already created
-if (not exists(join(folderPath, databaseFile))):
+if not exists(join(folderPath, databaseFile)):
     if not exists(folderPath):
         makedirs(folderPath)
     fc = open(join(folderPath, databaseFile), 'x')
@@ -63,12 +64,12 @@ def delete_database() -> None:
 
 
 # Convert unix time into readable time
-def readable_time(time: str) -> str:
-    return datetime.utcfromtimestamp(time).strftime('%d-%m-%Y')
+def readable_time(local_time: int) -> str:
+    return datetime.utcfromtimestamp(local_time).strftime('%d-%m-%Y')
 
 
 # Check if the provided unix time is a week or more older
-def is_out_of_date(previous_date: str) -> bool:
+def is_out_of_date(previous_date: int) -> bool:
     return (current_time() - previous_date) > unixWeek
 
 
@@ -119,36 +120,49 @@ def get_delete_link(link: str) -> str:
 
 
 # Split the path to get the filename and the path
-def treat_path(file_path: str) -> tuple:
-    combined_path = file_path.split('/')
-    filename = combined_path[-1]
-    file_path = file_path.replace(filename, '')
-    return file_path, filename
+def treat_path(file_path: list) -> list:
+    files = []
+    for file in file_path:
+        combined_path = file.split('/')
+        filename = combined_path[-1]
+        only_path = file.replace(filename, '')
+        files.append([only_path, filename])
+    return files
 
 
 # Check if the file exists
-def check_file_exists(file_path: str) -> None:
-    if (not exists(file_path)):
-        print(f'The file {file_path} does not exist')
-        exit(1)
+def check_file_exists(file_path: list) -> None:
+    for file in file_path:
+        if not exists(file):
+            print(f'The file {file} does not exist')
+            exit(1)
 
 
-# Sends the file to transfer.sh and add it to the database
-def send_file(path_file: str) -> None:
-    check_file_exists(path_file)
-    _, filename = treat_path(path_file)
-    title = input('Add a title for this file: ') or 'No Title'
-    print('Uploading file...')
-    output = run(f'curl -v --upload-file {path_file} https://transfer.sh/{filename}', shell=True, capture_output=True)
+def upload_file(file: list) -> dict:
+    output = run(
+        f'curl -v --upload-file {file[0] + file[1]} https://transfer.sh/{file[1]}', shell=True, capture_output=True)
 
-    local_data = {
-        "name": title,
+    return {
+        "name": file[2],
         "link": output.stdout.decode("utf-8"),
         "deleteLink": get_delete_link(output.stderr.decode("utf-8")),
         "unixTime": current_time()
     }
 
-    data_entry(local_data)
+
+# Sends the file to transfer.sh and add it to the database
+def send_file(path_file: list) -> None:
+    check_file_exists(path_file)
+    files = treat_path(path_file)
+    for index, title in enumerate([input(f'Add a title for the {file[1]} file: ') or 'No Title' for file in files]):
+        files[index].append(title)
+    print()
+    print('Uploading file(s)...')
+    with Pool() as pool:
+        entries = pool.map(upload_file, files)
+
+    for entry in entries:
+        data_entry(entry)
     print_data()
 
 
@@ -159,6 +173,7 @@ def print_help() -> None:
     print(' -r  | --read                => Read data from database.')
     print(' -u  | --upload              => Upload a file to Transfer.sh.')
     print(' -d  | --delete              => Delete data from database.')
+    print(' -V  | --version             => Prints the version of the application.')
     print(' -DD | --drop                => Delete the entire database.')
     print()
 
@@ -167,7 +182,7 @@ def print_help() -> None:
 def arg_parser(args: list) -> None:
     if len(args):
         if args[0] == '-u' or args[0] == '--upload':
-            send_file(args[1])
+            send_file(args[1:])
         elif args[0] == '-r' or args[0] == '--read':
             print_data()
         elif args[0] == '-d' or args[0] == '--delete':
