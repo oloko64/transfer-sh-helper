@@ -50,8 +50,8 @@ def current_time() -> int:
 
 # Asks for user confirmation
 def ask_confirmation(text: str) -> bool:
-    question = input(f'Are you sure you want to {text}? (y/N) ')
-    if (question == 'y' or question == 'Y' or question == 'yes'):
+    question = input(text).lower()
+    if question == 'y' or question == 'yes':
         return True
     else:
         return False
@@ -59,7 +59,7 @@ def ask_confirmation(text: str) -> bool:
 
 # Drop the entire database
 def delete_database() -> None:
-    if (ask_confirmation('DELETE THE DATABASE FILE')):
+    if ask_confirmation('Are you sure you want to DELETE THE DATABASE FILE? (y/N) '):
         remove(path.join(folderPath, databaseFile))
 
 
@@ -68,7 +68,7 @@ def readable_time(local_time: int) -> str:
     return datetime.utcfromtimestamp(local_time).strftime('%d-%m-%Y')
 
 
-# Check if the provided unix time is a week or more older
+# Check if the provided unix time is a week or older
 def is_out_of_date(previous_date: int) -> bool:
     return (current_time() - previous_date) > unixWeek
 
