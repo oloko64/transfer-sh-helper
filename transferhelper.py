@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from time import time
-from sqlite3 import connect
+from sqlite3 import connect, ProgrammingError
 from datetime import datetime
 from sys import argv
 from os import remove, path, makedirs
@@ -75,7 +75,15 @@ def is_out_of_date(previous_date: int) -> bool:
 
 # Get all the data from the database
 def read_data() -> list:
-    c.execute("SELECT * from transfer_data")
+    c.execute("SELECT * FROM transfer_data")
+
+    data = c.fetchall()
+    return data
+
+
+# Get only the one entry from the database
+def get_single_entry(entry_id: any) -> list:
+    c.execute("SELECT * FROM transfer_data WHERE id = ?", entry_id)
 
     data = c.fetchall()
     return data
@@ -104,11 +112,24 @@ def execute_delete(delete_id: str) -> None:
     conn.commit()
 
 
+# Delete the file from the cloud
+def delete_from_cloud(delete_link: str) -> None:
+    run(f'curl -X DELETE {delete_link}', shell=True, capture_output=True)
+
+
 # Asks the user what is the id to execute the deletion from the database
 def delete_data() -> None:
     print_data()
     delete_id = input('Type the id of the entry you want to delete: ')
-    execute_delete(delete_id)
+    cloud_delete = ask_confirmation('Do you also want to delete the file from the cloud? (y/N) ')
+    try:
+        if cloud_delete:
+            delete_from_cloud(get_single_entry(delete_id)[0][3])
+        execute_delete(delete_id)
+    except ProgrammingError:
+        print()
+        print('The id provided probably does not exist, exiting...')
+        exit(1)
 
 
 # Retrieves the delete link from the output of the curl command
@@ -172,7 +193,7 @@ def print_help() -> None:
     print(' -h  | --help                => Help on how to use it.')
     print(' -r  | --read                => Read data from database.')
     print(' -u  | --upload              => Upload a file to Transfer.sh.')
-    print(' -d  | --delete              => Delete data from database.')
+    print(' -d  | --delete              => Delete single entry from database.')
     print(' -V  | --version             => Prints the version of the application.')
     print(' -DD | --drop                => Delete the entire database.')
     print()
