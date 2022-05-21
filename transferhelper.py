@@ -43,12 +43,12 @@ unixWeek = 1209600
 
 
 # Gets the current unix time
-def current_time():
+def current_time() -> int:
     return int(time())
 
 
 # Asks for user confirmation
-def ask_confirmation(text):
+def ask_confirmation(text: str) -> bool:
     question = input(f'Are you sure you want to {text}? (y/N) ')
     if (question == 'y' or question == 'Y' or question == 'yes'):
         return True
@@ -57,23 +57,23 @@ def ask_confirmation(text):
 
 
 # Drop the entire database
-def delete_database():
+def delete_database() -> None:
     if (ask_confirmation('DELETE THE DATABASE FILE')):
         remove(path.join(folderPath, databaseFile))
 
 
 # Convert unix time into readable time
-def readable_time(time):
+def readable_time(time: str) -> str:
     return datetime.utcfromtimestamp(time).strftime('%d-%m-%Y')
 
 
 # Check if the provided unix time is a week or more older
-def is_out_of_date(previous_date):
+def is_out_of_date(previous_date: str) -> bool:
     return (current_time() - previous_date) > unixWeek
 
 
 # Get all the data from the database
-def read_data():
+def read_data() -> list:
     c.execute("SELECT * from transfer_data")
 
     data = c.fetchall()
@@ -81,7 +81,7 @@ def read_data():
 
 
 # Insert provided data into database
-def data_entry(data):
+def data_entry(data: dict) -> None:
     c.execute(f"INSERT INTO transfer_data(name, link, deleteLink, unixTime) VALUES(?, ?, ?, ?)",
               (data['name'], data['link'], data['deleteLink'], data['unixTime']))
 
@@ -89,7 +89,7 @@ def data_entry(data):
 
 
 # Prints the data to the console
-def print_data():
+def print_data() -> None:
     print()
     for row in read_data():
         print(
@@ -98,20 +98,20 @@ def print_data():
 
 
 # Delete data from the table based on the id provided
-def execute_delete(delete_id):
+def execute_delete(delete_id: str) -> None:
     c.execute("DELETE from transfer_data WHERE id = ?", delete_id)
     conn.commit()
 
 
 # Asks the user what is the id to execute the deletion from the database
-def delete_data():
+def delete_data() -> None:
     print_data()
     delete_id = input('Type the id of the entry you want to delete: ')
     execute_delete(delete_id)
 
 
 # Retrieves the delete link from the output of the curl command
-def get_delete_link(link):
+def get_delete_link(link: str) -> str:
     lines = link.split('\n')
     for line in lines:
         if 'x-url-delete:' in line:
@@ -119,7 +119,7 @@ def get_delete_link(link):
 
 
 # Split the path to get the filename and the path
-def treat_path(file_path):
+def treat_path(file_path: str) -> tuple:
     combined_path = file_path.split('/')
     filename = combined_path[-1]
     file_path = file_path.replace(filename, '')
@@ -127,14 +127,14 @@ def treat_path(file_path):
 
 
 # Check if the file exists
-def check_file_exists(file_path):
+def check_file_exists(file_path: str) -> None:
     if (not exists(file_path)):
         print(f'The file {file_path} does not exist')
         exit(1)
 
 
 # Sends the file to transfer.sh and add it to the database
-def send_file(path_file):
+def send_file(path_file: str) -> None:
     check_file_exists(path_file)
     _, filename = treat_path(path_file)
     title = input('Add a title for this file: ') or 'No Title'
@@ -153,7 +153,7 @@ def send_file(path_file):
 
 
 # Prints all the help commands
-def print_help():
+def print_help() -> None:
     print('List of commands:')
     print(' -h  | --help                => Help on how to use it.')
     print(' -r  | --read                => Read data from database.')
@@ -164,7 +164,7 @@ def print_help():
 
 
 # Manage all the arguments provided
-def arg_parser(args):
+def arg_parser(args: list) -> None:
     if len(args):
         if args[0] == '-u' or args[0] == '--upload':
             send_file(args[1])
@@ -174,6 +174,8 @@ def arg_parser(args):
             delete_data()
         elif args[0] == '-DD' or args[0] == '--drop':
             delete_database()
+        elif args[0] == '-V' or args[0] == '--version':
+            print('Version -> 0.3.6')
         elif args[0] == '-h' or args[0] == '--help':
             print(
                 '\nThis app lets you manage your transfer.sh links, by adding the links when you created them you can '
