@@ -136,8 +136,11 @@ def check_file_exists(file_path: list) -> None:
 
 
 def upload_file(file: list) -> dict:
+    filename_link = file[1].replace(' ', '\ ')
+    local_file = (file[0] + file[1]).replace(' ', '\ ')
     output = run(
-        f'curl -v --upload-file {file[0] + file[1]} https://transfer.sh/{file[1]}', shell=True, capture_output=True)
+        f'curl -v --upload-file {local_file} https://transfer.sh/{filename_link}', shell=True,
+        capture_output=True)
 
     return {
         "name": file[2],
