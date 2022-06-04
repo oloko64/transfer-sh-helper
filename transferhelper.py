@@ -19,6 +19,11 @@ def version() -> None:
     print('Version: 0.3.8')
 
 
+# One week in unix time equals 1209600
+def unix_week() -> int:
+    return 1209600
+
+
 # Gets the current unix time
 def current_time() -> int:
     return int(time())
@@ -46,7 +51,7 @@ def readable_time(local_time: int) -> str:
 
 # Check if the provided unix time is a week or older
 def is_out_of_date(previous_date: int) -> bool:
-    return (current_time() - previous_date) > 1209600
+    return (current_time() - previous_date) > unix_week()
 
 
 # Get all the data from the database
@@ -81,7 +86,7 @@ def print_data() -> None:
             f'Id: {row[0]} -> {row[1]} '
             f'| Link: {row[2]} | Delete Link: {row[3]} '
             f'| Created At: {readable_time(row[4])} '
-            f'| Expiration Date: {readable_time(row[4] + 1209600)} '
+            f'| Expiration Date: {readable_time(row[4] + unix_week())} '
             f'| Expired: {is_out_of_date(row[4])}')
     print()
 
@@ -229,8 +234,6 @@ if __name__ == "__main__":
     # Initiate sqlite3 database
     conn = connect(join(folderPath, databaseFile))
     c = conn.cursor()
-
-    # One week in unix time equals 1209600
 
     try:
         parser = ArgumentParser(description='Transfer.sh Helper')
