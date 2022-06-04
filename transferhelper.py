@@ -3,16 +3,20 @@
 from time import time
 from sqlite3 import connect, ProgrammingError
 from datetime import datetime
-from sys import argv
 from os import remove, path, makedirs
 from os.path import exists, join
 from getpass import getuser
 from subprocess import run
 from multiprocessing import Pool
+from argparse import ArgumentParser
 
 
 # Code developed by OLoKo64
 # Thanks for using it :)
+
+# Application version
+def version() -> None:
+    print('Version: 0.3.8')
 
 
 # Gets the current unix time
@@ -195,23 +199,18 @@ def print_help() -> None:
 
 
 # Manage all the arguments provided
-def arg_parser(args: list) -> None:
-    if len(args):
-        if args[0] == '-u' or args[0] == '--upload':
-            send_file(args[1:])
-        elif args[0] == '-r' or args[0] == '--read':
+def arg_parser(args) -> None:
+    if any(list(args.__dict__.values())):
+        if args.read:
             print_data()
-        elif args[0] == '-d' or args[0] == '--delete':
+        if args.version:
+            version()
+        if args.upload:
+            send_file(args.upload)
+        if args.delete:
             delete_data()
-        elif args[0] == '-DD' or args[0] == '--drop':
+        if args.drop:
             delete_database()
-        elif args[0] == '-V' or args[0] == '--version':
-            print('Version -> 0.3.7')
-        elif args[0] == '-h' or args[0] == '--help':
-            print(
-                '\nThis app lets you manage your transfer.sh links, by adding the links when you created them you can '
-                'know if they are already expired.\n')
-            print_help()
     else:
         print_data()
 
@@ -234,7 +233,13 @@ if __name__ == "__main__":
     # One week in unix time equals 1209600
 
     try:
-        arg_parser(argv[1:])
+        parser = ArgumentParser(description='Transfer.sh Helper')
+        parser.add_argument('-u', '--upload', type=str, nargs='+', help='upload a file to transfer.sh')
+        parser.add_argument('-r', '--read', action='store_true', help='read data from database')
+        parser.add_argument('-d', '--delete', action='store_true', help='delete a single entry from database')
+        parser.add_argument('-DD', '--drop', action='store_true', help='delete the entire database file')
+        parser.add_argument('-V', '--version', action='store_true', help='prints the version of the application')
+        arg_parser(parser.parse_args())
     except KeyboardInterrupt:
         print('\n\nExiting...\n')
         exit(1)
