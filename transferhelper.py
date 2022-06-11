@@ -4,7 +4,7 @@ from time import time
 from sqlite3 import connect, ProgrammingError
 from datetime import datetime
 from os import remove, path, makedirs
-from os.path import exists, join
+from os.path import exists, join, getsize, isfile
 from getpass import getuser
 from subprocess import run
 from multiprocessing import Pool
@@ -16,7 +16,7 @@ from argparse import ArgumentParser
 
 # Application version
 def version() -> None:
-    print('Version: 0.3.8')
+    print('Version: 0.3.9')
 
 
 # One week in unix time equals 1209600
@@ -136,12 +136,28 @@ def treat_path(file_path: list) -> list:
     return files
 
 
-# Check if the file exists
-def check_file_exists(file_path: list) -> None:
+# Check if the file properties
+def check_file_properties(file_path: list) -> None:
     for file in file_path:
-        if not exists(file):
-            print(f'The file {file} does not exist')
+        if not getsize(file):
+            print(f'\n{file} is empty, exiting...\n')
             exit(1)
+        if not isfile(file):
+            print(f'\nFile {file} is a folder, exiting...\n')
+            exit(1)
+        if not exists(file):
+            print(f'\nThe file {file} does not exist, exiting...\n')
+            exit(1)
+
+
+def get_file_size_formatted(file_path: int) -> str:
+    size = getsize(file_path) / 1000
+    if size >= (giga := 1000000000):
+        return f'{round(size / giga)} GB'
+    elif size >= (megabyte := 1024):
+        size = round(size / megabyte)
+        return f'{size} MB'
+    return f'{size} KB'
 
 
 def upload_file(file: list) -> dict:
@@ -161,12 +177,13 @@ def upload_file(file: list) -> dict:
 
 # Sends the file to transfer.sh and add it to the database
 def send_file(path_file: list) -> None:
-    check_file_exists(path_file)
+    check_file_properties(path_file)
     files = treat_path(path_file)
     for index, title in enumerate([input(f'Add a title for the {file[1]} file: ') or 'No Title' for file in files]):
         files[index].append(title)
     print()
-    print('Uploading file(s)...')
+    for file in files:
+        print(f'Uploading {file[1]}', f'-> {get_file_size_formatted(file[0] + file[1])}...', sep='\t')
     with Pool() as pool:
         entries = pool.map(upload_file, files)
 
