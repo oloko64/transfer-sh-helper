@@ -22,7 +22,7 @@ I am just a user from their services, so I wrote this script to help me remember
 
 # Installation
 
-This is the easiest part, just go to the releases and download the [latest version](https://github.com/OLoKo64/transfer-sh-store/releases), after that you just need to execute the program inside a terminal:
+This is the easiest part, just go to the releases and download the [latest version](https://github.com/OLoKo64/transfer-sh-store/releases), after that you just need to extract the file and execute the program inside a terminal:
 
 ```bash
 ./trasferhelper
